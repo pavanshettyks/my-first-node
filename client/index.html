@@ -1,0 +1,77 @@
+<div id="player-text" style="width:200px;height:200px;overflow-y:scroll">
+    <div>List of Players </div>
+</div>
+<form id="player-form">
+    <input id="player-input" type="text" style="width:200px"></input><br/>
+	<input type="button" onclick="myFunction()" value="User Name" id= "button">
+</form> 
+<br/>
+<div id="chat-text" style="width:500px;height:300px;overflow-y:scroll">
+    <div>Chat Window</div>
+</div>
+ 
+<form id="chat-form">
+    <input id="chat-input" type="text" style="width:500px"></input>
+</form>
+
+ 
+<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+<script>
+    var playerText = document.getElementById('player-text');
+    var playerInput = document.getElementById('player-input');
+    var playerForm = document.getElementById('player-form');
+	
+	var chatText = document.getElementById('chat-text');
+    var chatInput = document.getElementById('chat-input');
+    var chatForm = document.getElementById('chat-form');
+  
+    var socket = io();
+       
+  
+   
+    socket.on('addToChat',function(data){
+        chatText.innerHTML += '<div>' + data + '</div>';
+    });
+	socket.on('addToPlayer',function(data){
+        playerText.innerHTML += '<div>' + data + '</div>';
+    });
+	
+	
+    socket.on('evalAnswer',function(data){
+        console.log(data);
+    });
+   
+   function myFunction() {
+   
+	//e.preventDefault();
+	 document.getElementById("button").style.visibility = "hidden";
+	  document.getElementById("player-input").style.visibility = "hidden";
+        if(playerInput.value[0] === '/')
+			socket.emit('evalServer',playerInput.value.slice(1));
+        else
+            socket.emit('AddPlayerToServer',playerInput.value);
+        playerInput.value = '';
+}
+   
+    playerForm.onsubmit = function(e){
+	 document.getElementById("player-input").style.visibility = "hidden";
+        e.preventDefault();
+        if(playerInput.value[0] === '/')
+			socket.emit('evalServer',playerInput.value.slice(1));
+        else
+            socket.emit('AddPlayerToServer',playerInput.value);
+        playerInput.value = '';
+
+    }
+   
+    chatForm.onsubmit = function(e){
+        e.preventDefault();
+        if(chatInput.value[0] === '/')
+            socket.emit('evalServer',chatInput.value.slice(1));
+        else
+            socket.emit('sendMsgToServer',chatInput.value);
+        chatInput.value = '';      
+    }
+
+   
+</script>
